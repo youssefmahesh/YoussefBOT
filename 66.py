@@ -1,25 +1,31 @@
 import telebot
+from flask import Flask
+from threading import Thread
 import requests
 from telebot import types
 
 # استخدم التوكن مباشرةً هنا
-took = '7715679622:AAEyA6WvSSI5zKQOTF4j-tkr2UDoroCHbTg'
+took = '7524197609:AAE9Flt_SQP-Ae8gRY7zY2wSy5hn9a_xq70'
 bot = telebot.TeleBot(took)
 
 @bot.message_handler(commands=['start'])
 def sd(message):
     markup = types.InlineKeyboardMarkup()
-    btn = types.InlineKeyboardButton("يـوسـف الثـقفي", url="https://t.me/bsx_h2")
+    btn = types.InlineKeyboardButton("يـوسـف الثـقفي", url="https://t.me/I_Y1S")
     markup.add(btn)
     
-    sd.sd = message.from_user.first_name
+    user_name = message.from_user.first_name
     bot.send_message(
         message.chat.id, 
-        f"أهلاً بكَ في بوت يـوسـف الثـقفي ❤️\n\n"
-        f"✨ صَلِّ عَلَى رَسُولِ اللهِ، يَفْلَحُ وَجْهُكَ في دُنْيَاكَ قَبْلَ أُخْرَاكَ، وَيُكْفِي هَمَّكَ ويُغْفَرُ ذَنْبُكَ ✨\n\n"
+        f"✨ أهلاً بكَ يا {user_name} في بوت يـوسـف الثـقفي ♥️\n\n"
+        
+        f"✨ صَلِّ عَلَى رَسُولِ اللهِ، يُفْلِحُ وَجْهُكَ في دُنْيَاكَ قَبْلَ أُخْرَاكَ، وَيُكْفِي هَمُكَ ويُغْفَرُ ذَنْبُكَ ✨\n\n"
+        
         f"اسْأَلْ عن أيِّ شَيْءٍ يَخْطُرُ ببالِكَ، وسَأكونُ هُنَا للإجابةِ عَلَيْكَ بِإذْنِ اللّٰه 🌟\n\n"
-        f"نُسخة مُصَغَّرَة من ChatGPT، مِن صُنعي ♥️\n\n"
-        f"اضغَطْ عَلَى الزِّرِّ أَدْنَاهُ لِلْتَّوَاصُلِ مَعِي 👇🏻", 
+        
+        f"نُسْخَة مُصَغَّرَة مِنْ ChatGPT، مِن صُنْعِي ♥️\n\n"
+        
+        f"اضْغَطْ عَلَى الزِّرِّ أَدْنَاهُ لِلْتَّوَاصُلِ مَعِي 👇🏻", 
         reply_markup=markup
     )
 
@@ -54,8 +60,27 @@ def handle_message(message):
     try:
         ree = requests.post('https://api.binjie.fun/api/generateStream', headers=headers, json=json_data)
         ree.encoding = 'utf-8'
-        bot.send_message(message.chat.id, ree.text)
+        response_message = ree.text if ree.status_code == 200 else "لم أتمكن من الحصول على رد، حاول مرة أخرى لاحقًا."
     except Exception as e:
-        bot.send_message(message.chat.id, f"حدث خطأ: {e}")
+        response_message = f"حدث خطأ: {e}"
 
-bot.infinity_polling()
+    # إرسال الرد بشكل منسق
+    bot.send_message(message.chat.id, f"{response_message}")
+
+# Flask application setup
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "<b>telegram @I_Y1S</b>"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+if __name__ == "__main__":  # تشغيل البوت
+    keep_alive()  # تشغيل الوب
+    bot.infinity_polling(skip_pending=True)  # تشغيل البوت
